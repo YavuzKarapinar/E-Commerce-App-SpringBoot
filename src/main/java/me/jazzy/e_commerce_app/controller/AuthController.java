@@ -2,6 +2,8 @@ package me.jazzy.e_commerce_app.controller;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import me.jazzy.e_commerce_app.dto.LoginBody;
+import me.jazzy.e_commerce_app.dto.LoginResponse;
 import me.jazzy.e_commerce_app.dto.RegistrationBody;
 import me.jazzy.e_commerce_app.exception.UserExistsException;
 import me.jazzy.e_commerce_app.service.UserService;
@@ -27,5 +29,18 @@ public class AuthController {
         } catch (UserExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
+    }
+
+    @PostMapping("/login")
+    private ResponseEntity<LoginResponse> loginUser(@RequestBody LoginBody loginBody) {
+        String jwt = userService.loginUser(loginBody);
+        System.out.println(jwt);
+        if (jwt == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setJwt(jwt);
+        return ResponseEntity.ok(loginResponse);
     }
 }
