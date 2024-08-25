@@ -22,6 +22,7 @@ public class JWTService {
     private int expiryInSeconds;
 
     private Algorithm algorithm;
+    private final String USERNAME_KEY = "USERNAME";
 
     @PostConstruct
     public void postConstruct() {
@@ -29,11 +30,18 @@ public class JWTService {
     }
 
     public String generateJWT(User user) {
+
         return JWT
                 .create()
-                .withClaim("USERNAME", user.getUsername())
+                .withClaim(USERNAME_KEY, user.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expiryInSeconds))
                 .withIssuer(issuer)
                 .sign(algorithm);
+    }
+
+    public String getUsername(String token) {
+        return JWT.decode(token)
+                .getClaim(USERNAME_KEY)
+                .asString();
     }
 }
