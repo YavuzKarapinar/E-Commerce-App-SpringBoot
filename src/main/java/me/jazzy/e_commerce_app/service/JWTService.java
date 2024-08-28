@@ -12,17 +12,15 @@ import java.util.Date;
 @Service
 public class JWTService {
 
+    private final String USERNAME_KEY = "USERNAME";
+    private final String EMAIL_KEY = "EMAIL";
     @Value("${jwt.algorithm.key}")
     private String algorithmKey;
-
     @Value("${jwt.issuer}")
     private String issuer;
-
     @Value("${jwt.expiryInSeconds}")
     private int expiryInSeconds;
-
     private Algorithm algorithm;
-    private final String USERNAME_KEY = "USERNAME";
 
     @PostConstruct
     public void postConstruct() {
@@ -30,10 +28,18 @@ public class JWTService {
     }
 
     public String generateJWT(User user) {
-
         return JWT
                 .create()
                 .withClaim(USERNAME_KEY, user.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + expiryInSeconds))
+                .withIssuer(issuer)
+                .sign(algorithm);
+    }
+
+    public String generateVerificationJWT(User user) {
+        return JWT
+                .create()
+                .withClaim(EMAIL_KEY, user.getEmail())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expiryInSeconds))
                 .withIssuer(issuer)
                 .sign(algorithm);

@@ -20,6 +20,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(request -> {
                             request.requestMatchers("/api/v1/auth/register").permitAll();
                             request.requestMatchers("/api/v1/auth/login").permitAll();
+                            request.requestMatchers("/api/v1/auth/verify").permitAll();
                             request.anyRequest().authenticated();
                         }
                 )
