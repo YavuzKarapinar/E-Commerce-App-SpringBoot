@@ -48,8 +48,8 @@ public class UserService {
         VerificationToken verificationToken = createVerificationToken(user);
         emailService.sendVerificationEmail(verificationToken);
 
-        verificationTokenRepository.save(verificationToken);
         userRepository.save(user);
+        verificationTokenRepository.save(verificationToken);
     }
 
     private VerificationToken createVerificationToken(User user) {

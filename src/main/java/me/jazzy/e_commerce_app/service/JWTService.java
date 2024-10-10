@@ -2,6 +2,7 @@ package me.jazzy.e_commerce_app.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.annotation.PostConstruct;
 import me.jazzy.e_commerce_app.model.User;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +47,8 @@ public class JWTService {
     }
 
     public String getUsername(String token) {
-        return JWT.decode(token)
+        DecodedJWT jwt = JWT.require(algorithm).build().verify(token);
+        return jwt
                 .getClaim(USERNAME_KEY)
                 .asString();
     }
