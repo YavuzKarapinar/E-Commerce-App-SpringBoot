@@ -1,7 +1,9 @@
 package me.jazzy.e_commerce_app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +32,14 @@ public class User {
     private Boolean emailVerified = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonIgnore
+    @ToString.Exclude
     private List<Address> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id desc")
+    @JsonIgnore
+    @ToString.Exclude
     private List<VerificationToken> verificationTokens = new ArrayList<>();
 
 }
