@@ -2,6 +2,7 @@ package me.jazzy.e_commerce_app.service;
 
 import lombok.RequiredArgsConstructor;
 import me.jazzy.e_commerce_app.exception.EmailFailureException;
+import me.jazzy.e_commerce_app.model.User;
 import me.jazzy.e_commerce_app.model.VerificationToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -31,6 +32,20 @@ public class EmailService {
         message.setSubject("Verify your email to active your account.");
         message.setText("Please follow the link below to verify your email to active your account\n" +
                 baseUrl + "/auth/verify?token=" + verificationToken.getToken());
+        try {
+            mailSender.send(message);
+        } catch (MailException e) {
+            throw new EmailFailureException();
+        }
+    }
+
+    public void sendPasswordResetEmail(User user, String token) throws EmailFailureException {
+        SimpleMailMessage message = makeMailMessage();
+        message.setTo(user.getEmail());
+        message.setSubject("Reset your password");
+        message.setText("You requested password reset on our website. Please" +
+                "find the link below to be able to reset your password.\n" +
+                baseUrl + "/auth/reset?token=" + token);
         try {
             mailSender.send(message);
         } catch (MailException e) {

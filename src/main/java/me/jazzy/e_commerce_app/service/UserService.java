@@ -3,8 +3,10 @@ package me.jazzy.e_commerce_app.service;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import me.jazzy.e_commerce_app.dto.LoginBody;
+import me.jazzy.e_commerce_app.dto.PasswordResetBody;
 import me.jazzy.e_commerce_app.dto.RegistrationBody;
 import me.jazzy.e_commerce_app.exception.EmailFailureException;
+import me.jazzy.e_commerce_app.exception.EmailNotFoundException;
 import me.jazzy.e_commerce_app.exception.UserExistsException;
 import me.jazzy.e_commerce_app.exception.UserNotVerifiedException;
 import me.jazzy.e_commerce_app.model.User;
@@ -106,5 +108,29 @@ public class UserService {
         verificationTokenRepository.deleteByUser(user);
 
         return true;
+    }
+
+    public void forgotPassword(String email) throws EmailNotFoundException, EmailFailureException {
+        Optional<User> op = userRepository.findByEmailIgnoreCase(email);
+        if (op.isEmpty()) {
+            throw new EmailNotFoundException();
+        }
+
+        User user = op.get();
+        String token = jwtService.generatePasswordResetJWT(user);
+        emailService.sendPasswordResetEmail(user, token);
+    }
+
+    public void resetPassword(PasswordResetBody passwordResetBody) throws EmailNotFoundException {
+        String email = jwtService.getResetPasswordEmail(passwordResetBody.getToken());
+        Optional<User> op = userRepository.findByEmailIgnoreCase(email);
+
+        if (op.isEmpty()) {
+            throw new EmailNotFoundException();
+        }
+
+        User user = op.get();
+        user.setPassword(encryptionService.encryptPassword(passwordResetBody.getPassword()));
+        userRepository.save(user);
     }
 }

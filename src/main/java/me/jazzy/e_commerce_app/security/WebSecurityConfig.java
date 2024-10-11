@@ -21,6 +21,8 @@ public class WebSecurityConfig {
                             request.requestMatchers("/api/v1/auth/register").permitAll();
                             request.requestMatchers("/api/v1/auth/login").permitAll();
                             request.requestMatchers("/api/v1/auth/verify").permitAll();
+                            request.requestMatchers("/api/v1/auth/forgot").permitAll();
+                            request.requestMatchers("/api/v1/auth/reset").permitAll();
                             request.anyRequest().authenticated();
                         }
                 )
