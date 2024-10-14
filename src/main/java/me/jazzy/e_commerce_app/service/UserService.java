@@ -5,12 +5,11 @@ import lombok.AllArgsConstructor;
 import me.jazzy.e_commerce_app.dto.LoginBody;
 import me.jazzy.e_commerce_app.dto.PasswordResetBody;
 import me.jazzy.e_commerce_app.dto.RegistrationBody;
-import me.jazzy.e_commerce_app.exception.EmailFailureException;
-import me.jazzy.e_commerce_app.exception.EmailNotFoundException;
-import me.jazzy.e_commerce_app.exception.UserExistsException;
-import me.jazzy.e_commerce_app.exception.UserNotVerifiedException;
+import me.jazzy.e_commerce_app.exception.*;
+import me.jazzy.e_commerce_app.model.Address;
 import me.jazzy.e_commerce_app.model.User;
 import me.jazzy.e_commerce_app.model.VerificationToken;
+import me.jazzy.e_commerce_app.repository.AddressRepository;
 import me.jazzy.e_commerce_app.repository.UserRepository;
 import me.jazzy.e_commerce_app.repository.VerificationTokenRepository;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserService {
 
+    private AddressRepository addressRepository;
     private UserRepository userRepository;
     private EncryptionService encryptionService;
     private JWTService jwtService;
@@ -132,5 +132,40 @@ public class UserService {
         User user = op.get();
         user.setPassword(encryptionService.encryptPassword(passwordResetBody.getPassword()));
         userRepository.save(user);
+    }
+
+    public List<Address> getAddress(User user, Long userId) throws UserHasNoPermissionException {
+        if (hasPermission(user, userId)) {
+            return addressRepository.findByUser_Id(userId);
+        }
+
+        throw new UserHasNoPermissionException();
+    }
+
+    public Address putAddress(User user, Long userId, Address address) throws UserHasNoPermissionException {
+        if (hasPermission(user, userId)) {
+            User refUser = new User();
+            refUser.setId(userId);
+            address.setUser(refUser);
+            return addressRepository.save(address);
+        }
+
+        throw new UserHasNoPermissionException();
+    }
+
+    public Address postAddress(User user, Long userId, Address address) throws UserHasNoPermissionException {
+        if (hasPermission(user, userId)) {
+            address.setId(null);
+            User refUser = new User();
+            refUser.setId(userId);
+            address.setUser(refUser);
+            return addressRepository.save(address);
+        }
+
+        throw new UserHasNoPermissionException();
+    }
+
+    private boolean hasPermission(User user, Long userId) {
+        return user.getId().equals(userId);
     }
 }
